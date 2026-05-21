@@ -23,23 +23,41 @@ import numpy
 # print(points.stride())
 
 
-a = torch.ones(3, 2)
-print("Before zero_():")
-print(a)
+# a = torch.ones(3, 2)
+# print("Before zero_():")
+# print(a)
+#
+# a.zero_() # 인플레이스 연산
+# print("\nAfter zero_():")
+# print(a)
+#
+# # 일반 연산
+# b = torch.ones(2, 2)
+# c = b.add(1.0) # 새로운 텐서들로 반환
+# print("\nb (original):")
+# print(b)
+# print("\nc (new tensor):")
+# print(c)
+# print("b 안변함")
+# print(b)
 
-a.zero_() # 인플레이스 연산
-print("\nAfter zero_():")
-print(a)
 
-# 일반 연산
-b = torch.ones(2, 2)
-c = b.add(1.0) # 새로운 텐서들로 반환
-print("\nb (original):")
-print(b)
-print("\nc (new tensor):")
-print(c)
-print("b 안변함")
-print(b)
+
+# 기본 dtype
+a = torch.ones(3)
+print(f"기본 dtype 텐서: {a.dtype}") # torch.float32
+
+# 명시적으로 float64 (double)
+double_points = torch.ones(10, 2, dtype=torch.double)
+print(f"double dtype 텐서: {double_points.dtype}") # torch.float64
+
+# int16 (short)
+short_points = torch.tensor([[1, 2], [3, 4]], dtype=torch.short)
+print(f"short dtype 텐서: {short_points.dtype}") # torch.int16
+
+# to() 변경
+converted_points = double_points.to(torch.float32)
+print(f"변환된 텐서 dtype: {converted_points.dtype}") # torch.float32
 
 
 
