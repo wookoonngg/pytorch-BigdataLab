@@ -1,6 +1,6 @@
-import torch
-import numpy as np
-from torch.utils.data import dataloader
+# import torch
+# import numpy as np
+# from torch.utils.data import dataloader
 
 # #1차 텐서
 # a = torch.ones(3)
@@ -74,16 +74,235 @@ from torch.utils.data import dataloader
 
 
 
+# import torch
+#
+# target = torch.tensor([6, 6, 7, 4, 5]) # 샘플이 5개
+# #점수가 0~9점이니 범주가 10개
+#
+# # 0으로 채워진 텐서 하나면 1이어야함
+# target_onehot = torch.zeros(target.shape[0], 10)
+#
+# # scatter_ 메서드를 사용하여 원-핫 인코딩 수행
+# target_onehot.scatter_(1, target.unsqueeze(1), 1.0)
+#
+# print(f"원본 점수: {target}")
+# print(f"원-핫 인코딩된 점수:\n{target_onehot}")
+
+
+# import torch
+# import torch.nn as nn
+# import torch.optim as optim
+#
+# # -------------------------
+# # 1. 간단한 데이터
+# # -------------------------
+# sentences = [
+#     "i love machine learning",
+#     "i love deep learning",
+#     "i hate bugs",
+#     "bugs are annoying"
+# ]
+#
+# labels = [1, 1, 0, 0]  # 1: positive, 0: negative
+#
+# # -------------------------
+# # 2. 단어 사전 만들기
+# # -------------------------
+# word2idx = {}
+# idx = 0
+#
+# for sentence in sentences:
+#     for word in sentence.split():
+#         if word not in word2idx:
+#             word2idx[word] = idx
+#             idx += 1
+#
+# vocab_size = len(word2idx)
+#
+# # -------------------------
+# # 3. 문장을 숫자로 변환
+# # -------------------------
+# def encode(sentence):
+#     return [word2idx[word] for word in sentence.split()]
+#
+# encoded_sentences = [encode(s) for s in sentences]
+#
+# # 패딩 맞추기
+# max_len = max(len(s) for s in encoded_sentences)
+#
+# def pad(seq):
+#     return seq + [0] * (max_len - len(seq))
+#
+# padded = [pad(s) for s in encoded_sentences]
+#
+# X = torch.tensor(padded)
+# y = torch.tensor(labels)
+#
+# # -------------------------
+# # 4. 모델 정의
+# # -------------------------
+# class TextEmbeddingModel(nn.Module):
+#     def __init__(self, vocab_size, embed_dim):
+#         super().__init__()
+#         self.embedding = nn.Embedding(vocab_size, embed_dim)
+#         self.fc = nn.Linear(embed_dim, 2)
+#
+#     def forward(self, x):
+#         emb = self.embedding(x)       # (batch, seq, dim)
+#         emb = emb.mean(dim=1)         # 평균 pooling → 문장 벡터
+#         out = self.fc(emb)
+#         return out
+#
+# model = TextEmbeddingModel(vocab_size, embed_dim=10)
+#
+# # -------------------------
+# # 5. 학습 설정
+# # -------------------------
+# criterion = nn.CrossEntropyLoss()
+# optimizer = optim.Adam(model.parameters(), lr=0.01)
+#
+# # -------------------------
+# # 6. 학습
+# # -------------------------
+# for epoch in range(100):
+#     optimizer.zero_grad()
+#
+#     outputs = model(X)
+#     loss = criterion(outputs, y)
+#
+#     loss.backward()
+#     optimizer.step()
+#
+#     if epoch % 10 == 0:
+#         print(f"Epoch {epoch}, Loss: {loss.item():.4f}")
+#
+# # -------------------------
+# # 7. 임베딩 확인
+# # -------------------------
+# print("\n=== Word Embeddings ===")
+# for word, idx in word2idx.items():
+#     print(word, model.embedding.weight[idx].detach())
+
+
+
+
+
 import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
 
-target = torch.tensor([6, 6, 7, 4, 5]) # 샘플이 5개
-#점수가 0~9점이니 범주가 10개
+# -------------------------
+# 1. 명확한 데이터 (핵심🔥)
+# -------------------------
+sentences = [
+    "good happy nice",
+    "good awesome happy",
+    "nice good happy",
+    "bad sad terrible",
+    "terrible bad sad",
+    "sad horrible bad"
+]
 
-# 0으로 채워진 텐서 하나면 1이어야함
-target_onehot = torch.zeros(target.shape[0], 10)
+labels = [1, 1, 1, 0, 0, 0]  # 1: positive, 0: negative
 
-# scatter_ 메서드를 사용하여 원-핫 인코딩 수행
-target_onehot.scatter_(1, target.unsqueeze(1), 1.0)
+# -------------------------
+# 2. 단어 사전
+# -------------------------
+word2idx = {}
+idx = 0
 
-print(f"원본 점수: {target}")
-print(f"원-핫 인코딩된 점수:\n{target_onehot}")
+for sentence in sentences:
+    for word in sentence.split():
+        if word not in word2idx:
+            word2idx[word] = idx
+            idx += 1
+
+vocab_size = len(word2idx)
+
+# -------------------------
+# 3. 인코딩 + 패딩
+# -------------------------
+def encode(sentence):
+    return [word2idx[word] for word in sentence.split()]
+
+encoded = [encode(s) for s in sentences]
+max_len = max(len(s) for s in encoded)
+
+def pad(seq):
+    return seq + [0] * (max_len - len(seq))
+
+X = torch.tensor([pad(s) for s in encoded])
+y = torch.tensor(labels)
+
+# -------------------------
+# 4. 모델
+# -------------------------
+class Model(nn.Module):
+    def __init__(self, vocab_size, embed_dim):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.fc = nn.Linear(embed_dim, 2)
+
+    def forward(self, x):
+        emb = self.embedding(x)
+        emb = emb.mean(dim=1)  # 문장 벡터
+        return self.fc(emb)
+
+model = Model(vocab_size, embed_dim=5)
+
+# -------------------------
+# 5. 학습
+# -------------------------
+optimizer = optim.Adam(model.parameters(), lr=0.05)
+criterion = nn.CrossEntropyLoss()
+
+for epoch in range(200):
+    optimizer.zero_grad()
+    out = model(X)
+    loss = criterion(out, y)
+    loss.backward()
+    optimizer.step()
+
+    if epoch % 20 == 0:
+        print(f"Epoch {epoch}, Loss: {loss.item():.4f}")
+
+# -------------------------
+# 6. 임베딩 확인
+# -------------------------
+print("\n=== Embeddings ===")
+for word, i in word2idx.items():
+    print(word, model.embedding.weight[i].detach())
+
+# -------------------------
+# 7. 유사도 비교
+# -------------------------
+def sim(w1, w2):
+    v1 = model.embedding.weight[word2idx[w1]]
+    v2 = model.embedding.weight[word2idx[w2]]
+    return F.cosine_similarity(v1, v2, dim=0)
+
+print("\n=== Similarity ===")
+print("good vs happy:", sim("good", "happy").item())
+print("good vs bad:", sim("good", "bad").item())
+print("bad vs terrible:", sim("bad", "terrible").item())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
