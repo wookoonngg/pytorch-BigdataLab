@@ -15,9 +15,32 @@ import numpy
 #
 #
 
-points = torch.tensor([[4.0,1.0], [5.0,3.0], [2.0,1.0]])
+# points = torch.tensor([[4.0,1.0], [5.0,3.0], [2.0,1.0]])
+#
+# print(points.storage())
+# print(points.storage_offset())
+# print(points.size())
+# print(points.stride())
 
-print(points.storage())
-print(points.storage_offset())
-print(points.size())
-print(points.stride())
+
+a = torch.ones(3, 2)
+print("Before zero_():")
+print(a)
+
+a.zero_() # 인플레이스 연산
+print("\nAfter zero_():")
+print(a)
+
+# 일반 연산
+b = torch.ones(2, 2)
+c = b.add(1.0) # 새로운 텐서들로 반환
+print("\nb (original):")
+print(b)
+print("\nc (new tensor):")
+print(c)
+print("b 안변함")
+print(b)
+
+
+
+
