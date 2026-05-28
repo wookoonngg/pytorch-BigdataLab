@@ -76,27 +76,54 @@
 # # 최종 매개변수
 # print(f"\nFinal Parameters: {params.detach().numpy()}")
 
+#
+# import torch
+# from torch.utils.data import DataLoader, TensorDataset
+#
+# # 예시 데이터
+# t_u = torch.randn(100, 1) # 100개 샘플, 1개 특성
+# t_c = 2 * t_u + 3 + torch.randn(100, 1) * 0.1
+#
+# dataset = TensorDataset(t_u, t_c)
+#
+# # 배치 크기 10
+# batch_size = 10
+#
+# # 데이터로더 생성
+# dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+# n_epochs = 10
+#
+# # 학습
+# for epoch in range(n_epochs):
+#     for i, (input_batch, target_batch) in enumerate(dataloader):
+#         # input_batch와 target_batch로 순전파, 손실, 역전파, 매개변수 업데이트 수행
+#         # ...
+#         print(f"Epoch: {epoch+1}, Iteration: {i+1}, Batch size: {input_batch.shape[0]}")
+#     print(f"--- Epoch {epoch+1} completed ---")
+
 
 import torch
-from torch.utils.data import DataLoader, TensorDataset
 
-# 예시 데이터
-t_u = torch.randn(100, 1) # 100개 샘플, 1개 특성
-t_c = 2 * t_u + 3 + torch.randn(100, 1) * 0.1
+def model(t_u, w, b):
+    return w * t_u + b
 
-dataset = TensorDataset(t_u, t_c)
+def loss_fn(t_p, t_c):
+    return ((t_p - t_c)**2).mean()
 
-# 배치 크기 10
-batch_size = 10
+params = torch.tensor([1.0, 0.0], requires_grad=True)
+t_u_val = torch.tensor([10.0, 20.0])
+t_c_val = torch.tensor([5.0, 15.0])
 
-# 데이터로더 생성
-dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-n_epochs = 10
+# 검증 손실 계산 -> 기울기 추적 필요 없음
+with torch.no_grad():
+    val_t_p = model(t_u_val, *params)
+    val_loss = loss_fn(val_t_p, t_c_val)
+    print(f"Validation Loss: {val_loss.item()}")
+    print(f"Validation loss requires_grad: {val_loss.requires_grad}")
 
-# 학습
-for epoch in range(n_epochs):
-    for i, (input_batch, target_batch) in enumerate(dataloader):
-        # input_batch와 target_batch로 순전파, 손실, 역전파, 매개변수 업데이트 수행
-        # ...
-        print(f"Epoch: {epoch+1}, Iteration: {i+1}, Batch size: {input_batch.shape[0]}")
-    print(f"--- Epoch {epoch+1} completed ---")
+# 훈련 손실 계산 시 (기울기 추적 필요)
+train_t_u = torch.tensor([1.0, 2.0])
+train_t_c = torch.tensor([0.0, 1.0])
+train_t_p = model(train_t_u, *params)
+train_loss = loss_fn(train_t_p, t_c_val)
+print(f"Training loss requires_grad: {train_loss.requires_grad}")
