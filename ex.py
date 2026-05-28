@@ -290,8 +290,7 @@ print("bad vs terrible:", sim("bad", "terrible").item())
 
 
 
-
-
+# 여기까지 3,4장
 
 
 
