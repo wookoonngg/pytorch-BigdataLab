@@ -13,23 +13,29 @@
 # output = linear_model(x)
 # print("Output shape:", output.shape)
 
+# import torch
+# import torch.nn as nn
+#
+# # 입력 1개, 출력 1개 linear (in, out)
+# linear_model = nn.Linear(1, 1)
+#
+# # 입력 데이터 (배치 차원 11, 특징 1)
+# t_u_val = torch.tensor([35.7, 55.9, 58.2, 81.9, 56.3, 48.9, 33.9, 21.8, 48.4, 60.4, 68.4]).unsqueeze(1)
+#
+# # 모델에 입력 데이터 전달
+# output = linear_model(t_u_val)
+# print("Output tensor shape:", output.shape)
+#
+# # 모델의 가중치와 편향 확인
+# print("Weight:", linear_model.weight)
+# print("Bias:", linear_model.bias)
+#
+
 import torch
-import torch.nn as nn
+t_u = torch.tensor([35.7, 55.9, 58.2, 81.9, 56.3, 48.9, 33.9, 21.8, 48.4, 60.4, 68.4])
 
-# 입력 1개, 출력 1개 linear (in, out)
-linear_model = nn.Linear(1, 1)
+# unsqueeze(1)를 사용하여 1차원 텐서에 피쳐 차원 추가
+t_u_batched = t_u.unsqueeze(1)
 
-# 입력 데이터 (배치 차원 11, 특징 1)
-t_u_val = torch.tensor([35.7, 55.9, 58.2, 81.9, 56.3, 48.9, 33.9, 21.8, 48.4, 60.4, 68.4]).unsqueeze(1)
-
-# 모델에 입력 데이터 전달
-output = linear_model(t_u_val)
-print("Output tensor shape:", output.shape)
-
-# 모델의 가중치와 편향 확인
-print("Weight:", linear_model.weight)
-print("Bias:", linear_model.bias)
-
-
-
-
+print("Original t_u shape:", t_u.shape)
+print("Batched t_u shape:", t_u_batched.shape)
